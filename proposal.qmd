@@ -1,5 +1,5 @@
 ---
-title: "Proposal title"
+title: "From Community Participation to Financial Support"
 subtitle: "Proposal"
 format: html
 editor: visual
@@ -16,16 +16,142 @@ library(tidyverse)
 ```{r}
 #| label: load-dataset
 #| message: false
+
+events <- read_csv(
+  "data/event_participants.csv",
+  show_col_types = FALSE
+)
+
+donations <- read_csv(
+  "data/contributions.csv",
+  show_col_types = FALSE
+)
+
+event_contacts <- events |>
+  distinct(`Contact ID`)
+
+donor_contacts <- donations |>
+  distinct(`Contact ID`)
+
+overlapping_contacts <- event_contacts |>
+  inner_join(donor_contacts, by = "Contact ID")
 ```
 
-A brief description of your dataset including its provenance, dimensions, etc. as well as the reason why you chose this dataset.
+This project will use two datasets exported from Watershed Management Group's (WMG) CiviCRM database. WMG uses CiviCRM
+to track community event participation and financial
+contributions.
 
-Make sure to load the data and use inline code for some of this information.
+The first dataset contains `r nrow(events)` event participation
+records across `r ncol(events)` variables, representing
+`r nrow(event_contacts)` unique contacts. These records include
+information such as event titles, event dates, participant
+statuses, and participant identifiers.
+
+The second dataset contains `r nrow(donations)` financial
+contribution records across `r ncol(donations)` variables,
+representing `r nrow(donor_contacts)` unique contacts.
+Variables include contribution dates, donation amounts,
+contribution statuses, and contribution identifiers.
+
+Both datasets contain a shared Contact ID variable, allowing
+event participation records to be connected with financial
+contributions. An initial comparison identified
+`r nrow(overlapping_contacts)` contacts appearing in both
+datasets, representing approximately
+`r round(nrow(overlapping_contacts) / nrow(event_contacts) * 100, 2)`%
+of all event contacts.
+
+I selected these datasets because I am currently working at WMG, helping 
+to increase community engagement and build a stronger relationship with
+the community. I am interested in understanding whether community events
+are associated with future financial contributions and continued donor
+engagement. I will be presenting this analysis to leadership at WMG to
+help upper-management evaluate its engagement strategies and make more
+informed decisions about future events.
 
 ## Questions
 
-The two questions you want to answer.
+**Question 1:** What percentage of individuals who attend
+free community events become first-time financial
+donors within 12 months of their initial event attendance?
+
+**Question 2:** How is community event participation
+associated with long-term financial support, particularly
+repeat donations and donor retention?
 
 ## Analysis plan
 
--   A plan for answering each of the questions including the variables involved, variables to be created (if any), external data to be merged in (if any).
+### Question 1: Event Participation and Donor Conversion
+
+To answer the first question, I will merge the event
+participation and contribution datasets using their
+shared Contact ID variable.
+
+I will first clean the datasets by standardizing dates,
+reviewing missing values, and filtering participation
+records to include individuals marked as "Attended."
+I will also exclude future events and identify which
+events qualify as non-monetary community events.
+
+Next, I will identify each individual's first recorded
+event attendance and determine whether they had made
+a financial contribution before attending. Individuals
+who donated previously will be classified as existing
+donors rather than new donors.
+
+For individuals without prior donations, I will calculate
+whether they made their first financial contribution
+within 365 days of their initial attendance. I will
+restrict this calculation to individuals with a complete
+12-month follow-up period.
+
+The main variables will include Contact ID, Event ID,
+Event Title, Event Start Date, Participant Status,
+Contribution ID, and Contribution Date.
+
+New variables will include first attendance date,
+first donation date, prior donor status, days between
+attendance and donation, and conversion within
+12 months (Yes/No).
+
+I plan to create a bar chart showing the percentage
+of eligible event attendees who became first-time
+donors compared with those who did not. I may also
+compare conversion rates across different years or
+event categories.
+
+### Question 2: Event Participation and Long-Term Support
+
+To answer the second question, I will examine whether
+individuals who participate in more community events
+demonstrate different donation patterns than those
+who attend fewer events.
+
+Using the merged datasets, I will calculate the
+number of events attended by each individual, the
+number of completed contributions they made, and
+their total donation amounts.
+
+I will also identify donors who made multiple
+contributions and examine whether they donated
+again within 12 months of their first donation.
+Comparisons will use consistent observation periods
+where possible.
+
+The main variables will include Contact ID, Event ID,
+Event Start Date, Contribution ID, Contribution Date,
+and Total Amount.
+
+New variables will include total events attended,
+total contributions, total donation amount, repeat
+donor status (Yes/No), and donation retention
+within 12 months (Yes/No).
+
+I plan to use bar charts to compare repeat donation
+rates across event participation groups and line
+charts to visualize donation activity over time.
+
+Because the data is observational, this analysis
+will focus on identifying associations rather
+than establishing that event participation
+directly causes financial contributions.
