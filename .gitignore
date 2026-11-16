@@ -3,4 +3,7 @@
 .RData
 .Ruserdata
 
+# Ignore confidential nonprofit data
+data/
+
 /.quarto/
